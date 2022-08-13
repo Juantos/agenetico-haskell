@@ -29,9 +29,12 @@ permutacioninter xs pos1 pos2 = (take pos1 xs) ++ [xs !! pos2] ++ (interludio xs
 interludio :: [a] -> Int -> Int -> [a]
 interludio xs pos1 pos2 = take (pos2-(pos1+1)) (drop (pos1+1) xs)
 --------------------------------------------------------------------------------------------------------------------------
---permutacioninser :: [a] -> Int -> Int -> [a]   --Recibe el cromosoma la posición donde insertar el gen y la posicion del gen a insertar
---permutacioninser = 
+permutacioninser :: [a] -> Int -> Int -> [a]   --Recibe el cromosoma la posición donde insertar el gen y la posicion del gen a insertar
+permutacioninser xs pos1 pos2 = (take (pos1+1) xs) ++ [xs !! pos2] ++ (drop (pos1+1) (unget pos2 xs))
+
+unget :: Int -> [a] -> [a]
+unget pos xs = (take pos xs) ++ (reverse (take ((length xs)-(pos+1)) (reverse xs)))
 --------------------------------------------------------------------------------------------------------------------------
---permutacionmezcla :: [a] -> Int -> 
+--permutacionmezcla :: [a] -> Int -> --Esta creo que mejor no hacerla porque tiene una componente aleatoria que tal y como es haskell veo complicada
 --permutacionmezcla = 
 --------------------------------------------------------------------------------------------------------------------------
