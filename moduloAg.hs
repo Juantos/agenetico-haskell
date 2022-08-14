@@ -10,11 +10,19 @@ combinacion1Aux :: [a] -> [a] -> Int -> [a] -> [a]
 combinacion1Aux [x] [y] i zs
     | i==0 = zs ++ [y]
     | otherwise = zs ++ [x]
--- cuando las listas solo tienen un elemento se devuelve la última concatenación
 combinacionAux (x:xs) (y:ys) i zs 
     |i==0 = combinacion1Aux xs ys 0 (zs++[y])
     |otherwise = combinacion1Aux xs ys (i-1) (zs++[x])
 --------------------------------------------------------------------------------------------------------------------------
+combinacion2 :: [a] -> [a] -> [a]     --Recibe dos cromosomas y genera uno nuevo que alterna un gen de cada uno de los padres
+combinacion2 xs ys = combinacion2Aux xs ys [] 0
+combinacion2Aux :: [a] -> [a] -> [a] -> Int -> [a]
+combinacion2Aux [] [] zs _ =  zs
+combinacion2Aux (x:xs) (y:ys) zs 0 = combinacion2Aux xs ys (zs++[x]) 1 
+combinacion2Aux (x:xs) (y:ys) zs 1 = combinacion2Aux xs ys (zs++[y]) 0 
+--------------------------------------------------------------------------------------------------------------------------
+--combinacionCiclos :: [a] -> [a] -> Int -> [a] --Recibe dos cromosomas y devuelve uno nuevo utilizando el cruce basado en ciclos (para cromosomas en los que los elementos no pueden repetirse)
+--combinacionCiclos 
      
 
 --MUTACIONES
@@ -38,3 +46,12 @@ unget pos xs = (take pos xs) ++ (reverse (take ((length xs)-(pos+1)) (reverse xs
 --permutacionmezcla :: [a] -> Int -> --Esta creo que mejor no hacerla porque tiene una componente aleatoria que tal y como es haskell veo complicada
 --permutacionmezcla = 
 --------------------------------------------------------------------------------------------------------------------------
+
+--FUNCIONES AUXILIARES
+--posEnLista :: a -> [a] -> Int --Funcion auxiliar que recibe un elemento y una lista que lo contiene y devuelve la posición que ocupa dicho elemento en la lista
+--posEnLista e xs = 
+--    if noElem e xs 
+--        then error "El elemento no se encuentra en la lista"
+--    else length (take (/=e) xs)
+-- Preguntar por predicados a teacher
+        
