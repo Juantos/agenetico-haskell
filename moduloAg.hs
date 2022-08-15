@@ -21,8 +21,14 @@ combinacion2Aux [] [] zs _ =  zs
 combinacion2Aux (x:xs) (y:ys) zs 0 = combinacion2Aux xs ys (zs++[x]) 1 
 combinacion2Aux (x:xs) (y:ys) zs 1 = combinacion2Aux xs ys (zs++[y]) 0 
 --------------------------------------------------------------------------------------------------------------------------
---combinacionCiclos :: [a] -> [a] -> Int -> [a] --Recibe dos cromosomas y devuelve uno nuevo utilizando el cruce basado en ciclos (para cromosomas en los que los elementos no pueden repetirse)
---combinacionCiclos 
+combinacionCiclos :: Eq a => [a] -> [a] -> Int -> [a] --Recibe dos cromosomas y un número aleatorio y devuelve un cromosoma nuevo utilizando el cruce basado en ciclos (para cromosomas en los que los elementos no pueden repetirse)
+combinacionCiclos xs ys i = combinacionCiclosAux xs ys (ciclo xs ys i []) []
+combinacionCiclosAux :: Eq a => [a] -> [a] -> [a] -> [a] -> [a] --Recibe los mismos cromosomas que la función anterior + la lista con el ciclo a utilizar y una lista vacia para la recursion
+combinacionCiclosAux [] [] ciclos zs = zs
+combinacionCiclosAux (x:xs) (y:ys) ciclos zs 
+    | elem x ciclos = combinacionCiclosAux xs ys ciclos (zs ++ [x])
+    | otherwise = combinacionCiclosAux xs ys ciclos (zs ++ [y])
+
      
 
 --MUTACIONES
@@ -48,10 +54,12 @@ unget pos xs = (take pos xs) ++ (reverse (take ((length xs)-(pos+1)) (reverse xs
 --------------------------------------------------------------------------------------------------------------------------
 
 --FUNCIONES AUXILIARES
---posEnLista :: a -> [a] -> Int --Funcion auxiliar que recibe un elemento y una lista que lo contiene y devuelve la posición que ocupa dicho elemento en la lista
---posEnLista e xs = 
---    if noElem e xs 
---        then error "El elemento no se encuentra en la lista"
---    else length (take (/=e) xs)
--- Preguntar por predicados a teacher
-        
+posEnLista :: Eq a => a -> [a] -> Int --Funcion auxiliar que recibe un elemento y una lista que lo contiene y devuelve la posición que ocupa dicho elemento en la lista
+posEnLista e xs = 
+    if (elem e xs) == False 
+        then error "El elemento no se encuentra en la lista"
+    else length (takeWhile (/=e) xs)
+--------------------------------------------------------------------------------------------------------------------------    
+ciclo :: Eq a => [a] -> [a] -> Int -> [a] -> [a] --Función auxiliar que recibe dos cromosomas , un entero y una lista vacía en principio y devuelve un ciclo del primero comenzando en la posición introducida
+ciclo xs ys pos zs = if elem (xs!!pos) zs then zs
+    else ciclo xs ys (posEnLista (xs!!pos) ys) (zs++[xs!!pos]) 
