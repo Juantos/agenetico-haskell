@@ -1,28 +1,40 @@
-
-
-
 --COMBINACIONES
 --------------------------------------------------------------------------------------------------------------------------
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
+module AGenetico(
+    combinacion1
+) where
+
 combinacion1 :: [a] -> [a] -> Int -> [a] --Recibe dos cromosomas y la posicion a partir de la cual termina el primero y comienza el segundo
+combinacion1 xs ys i = take i xs ++ drop i ys
+
+{- combinacion1 :: [a] -> [a] -> Int -> [a] --Recibe dos cromosomas y la posicion a partir de la cual termina el primero y comienza el segundo
 combinacion1 xs ys i = combinacionAux xs ys i []
 
 combinacion1Aux :: [a] -> [a] -> Int -> [a] -> [a]
 combinacion1Aux [x] [y] i zs
     | i==0 = zs ++ [y]
     | otherwise = zs ++ [x]
+    
 combinacionAux (x:xs) (y:ys) i zs 
     |i==0 = combinacion1Aux xs ys 0 (zs++[y])
     |otherwise = combinacion1Aux xs ys (i-1) (zs++[x])
+
+-}
 --------------------------------------------------------------------------------------------------------------------------
 combinacion2 :: [a] -> [a] -> [a]     --Recibe dos cromosomas y genera uno nuevo que alterna un gen de cada uno de los padres
 combinacion2 xs ys = combinacion2Aux xs ys [] 0
+
 combinacion2Aux :: [a] -> [a] -> [a] -> Int -> [a]
 combinacion2Aux [] [] zs _ =  zs
 combinacion2Aux (x:xs) (y:ys) zs 0 = combinacion2Aux xs ys (zs++[x]) 1 
 combinacion2Aux (x:xs) (y:ys) zs 1 = combinacion2Aux xs ys (zs++[y]) 0 
+
+
 --------------------------------------------------------------------------------------------------------------------------
 combinacionCiclos :: Eq a => [a] -> [a] -> Int -> [a] --Recibe dos cromosomas y un número aleatorio y devuelve un cromosoma nuevo utilizando el cruce basado en ciclos (para cromosomas en los que los elementos no pueden repetirse)
 combinacionCiclos xs ys i = combinacionCiclosAux xs ys (ciclo xs ys i []) []
+
 combinacionCiclosAux :: Eq a => [a] -> [a] -> [a] -> [a] -> [a] --Recibe los mismos cromosomas que la función anterior + la lista con el ciclo a utilizar y una lista vacia para la recursion
 combinacionCiclosAux [] [] ciclos zs = zs
 combinacionCiclosAux (x:xs) (y:ys) ciclos zs 
