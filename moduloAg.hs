@@ -3,6 +3,18 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 module AGenetico(
     combinacion1
+    ,combinacion2
+    ,combinacion2Aux
+    ,combinacionCiclos
+    ,combinacionCiclosAux
+    ,mutacion1
+    ,permutacioninter
+    ,interludio
+    ,permutacioninser
+    ,unget
+    ,posEnLista
+    ,ciclo
+
 ) where
 
 combinacion1 :: [a] -> [a] -> Int -> [a] --Recibe dos cromosomas y la posicion a partir de la cual termina el primero y comienza el segundo
@@ -75,3 +87,4 @@ posEnLista e xs =
 ciclo :: Eq a => [a] -> [a] -> Int -> [a] -> [a] --Función auxiliar que recibe dos cromosomas , un entero y una lista vacía en principio y devuelve un ciclo del primero comenzando en la posición introducida
 ciclo xs ys pos zs = if elem (xs!!pos) zs then zs
     else ciclo xs ys (posEnLista (xs!!pos) ys) (zs++[xs!!pos]) 
+
