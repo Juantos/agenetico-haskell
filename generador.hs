@@ -32,3 +32,4 @@ generaEstadoInicial seed l n = take l (map (ceroAEnteroRango n) (generaListaAlea
 main = do
   g <- newStdGen
   print . take 10 $ (randomRs ('a', 'z') g)
+

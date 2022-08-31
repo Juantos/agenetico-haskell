@@ -65,8 +65,10 @@ mutacion1 :: [a] -> Int -> a -> [a]
 mutacion1 xs pos num = (take pos xs) ++ [num] ++ (reverse (take ((length xs)-(pos+1)) (reverse xs))) 
 --num es un numero aleatorio introducido como parametro de la función 
 --------------------------------------------------------------------------------------------------------------------------
-permutacioninter :: [a] -> Int -> Int -> [a]   --Recibe el cromosoma y las dos posiciones a intercambiar (importante introducir los numeros en orden)
-permutacioninter xs pos1 pos2 = (take pos1 xs) ++ [xs !! pos2] ++ (interludio xs pos1 pos2) ++ [xs !! pos1] ++ (drop (pos2+1) xs)
+permutacioninter :: [a] -> Int -> Int -> [a]   --Recibe el cromosoma y las dos posiciones a intercambiar 
+permutacioninter xs pos1 pos2 
+    | pos1 < pos2 = (take pos1 xs) ++ [xs !! pos2] ++ (interludio xs pos1 pos2) ++ [xs !! pos1] ++ (drop (pos2+1) xs)
+    | otherwise = (take pos2 xs) ++ [xs !! pos1] ++ (interludio xs pos2 pos1) ++ [xs !! pos2] ++ (drop (pos1+1) xs)
 
 interludio :: [a] -> Int -> Int -> [a]
 interludio xs pos1 pos2 = take (pos2-(pos1+1)) (drop (pos1+1) xs)
