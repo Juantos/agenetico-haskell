@@ -38,3 +38,4 @@ fitnessCuadradoMagicoAux matriz = fromIntegral (Prelude.sum (Prelude.map (abs) (
 resta15 :: Int -> Int
 resta15 x = x-15    
     
+

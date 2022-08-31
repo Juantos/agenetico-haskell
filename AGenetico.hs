@@ -18,6 +18,8 @@ module AGenetico(
 
 ) where
 import Data.List
+import System.Random
+import System.IO.Unsafe
 
 --COMBINACIONES
 --------------------------------------------------------------------------------------------------------------------------
@@ -101,9 +103,10 @@ seleccionRuleta xss it fitness = [seleccionRuletaAux listaTuplas (generaNumAleat
     listaTuplas = zip xss (map fitness xss)
 
 seleccionRuletaAux :: Eq a => [([a],Double)] -> Double -> Double -> [a]
-seleccionRuletaAux (xs:xss) num acum 
-    | num > (acum+(snd xs)) = seleccionRuletaAux  xss num (acum + (snd xs))
-    | otherwise = fst xs
+seleccionRuletaAux (xs:xss) num acum =
+    if (num > (acum+(snd xs))) 
+        then seleccionRuletaAux  xss num (acum + (snd xs))
+    else fst xs
 
                                                                     
 seleccionElitistaMaximizar :: Eq a => [[a]] -> Int -> ([a] -> Double) -> [[a]] --Recibe la poblacion de la iteracion anterior, el número de individuos a seleccionar la funcion fitness y devuelve los individuos seleccionados 
@@ -117,3 +120,4 @@ seleccionElitistaMinimizar xss it fitness = [fst ((sortBy ordena listaTuplas) !!
 ordena :: ([a],Double) -> ([a],Double) -> Ordering
 ordena (_,a) (_,b) | a<=b = LT
                    | otherwise = GT
+
