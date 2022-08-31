@@ -12,7 +12,7 @@ module AGenetico(
     ,permutacioninter
     ,interludio
     ,permutacioninser
-    ,unget
+    ,deleteAt
     ,posEnLista
     ,ciclo
 
@@ -65,19 +65,15 @@ mutacion1 :: [a] -> Int -> a -> [a]
 mutacion1 xs pos num = (take pos xs) ++ [num] ++ (reverse (take ((length xs)-(pos+1)) (reverse xs))) 
 --num es un numero aleatorio introducido como parametro de la función 
 --------------------------------------------------------------------------------------------------------------------------
-permutacioninter :: [a] -> Int -> Int -> [a]   --Recibe el cromosoma y las dos posiciones a intercambiar 
-permutacioninter xs pos1 pos2 
-    | pos1 < pos2 = (take pos1 xs) ++ [xs !! pos2] ++ (interludio xs pos1 pos2) ++ [xs !! pos1] ++ (drop (pos2+1) xs)
-    | otherwise = (take pos2 xs) ++ [xs !! pos1] ++ (interludio xs pos2 pos1) ++ [xs !! pos2] ++ (drop (pos1+1) xs)
+permutacioninter :: [a] -> Int -> Int -> [a]   --Recibe el cromosoma y las dos posiciones a intercambiar (importante introducir los numeros en orden)
+permutacioninter xs pos1 pos2 = (take pos1 xs) ++ [xs !! pos2] ++ (interludio xs pos1 pos2) ++ [xs !! pos1] ++ (drop (pos2+1) xs)
 
 interludio :: [a] -> Int -> Int -> [a]
 interludio xs pos1 pos2 = take (pos2-(pos1+1)) (drop (pos1+1) xs)
 --------------------------------------------------------------------------------------------------------------------------
 permutacioninser :: [a] -> Int -> Int -> [a]   --Recibe el cromosoma la posición donde insertar el gen y la posicion del gen a insertar
-permutacioninser xs pos1 pos2 = (take (pos1+1) xs) ++ [xs !! pos2] ++ (drop (pos1+1) (unget pos2 xs))
+permutacioninser xs pos1 pos2 = (take (pos1+1) xs) ++ [xs !! pos2] ++ (drop (pos1+1) (deleteAt pos2 xs))
 
-unget :: Int -> [a] -> [a]
-unget pos xs = (take pos xs) ++ (reverse (take ((length xs)-(pos+1)) (reverse xs)))
 --------------------------------------------------------------------------------------------------------------------------
 --permutacionmezcla :: [a] -> Int -> --Esta creo que mejor no hacerla porque tiene una componente aleatoria que tal y como es haskell veo complicada
 --permutacionmezcla = 
@@ -92,7 +88,7 @@ posEnLista e xs =
 --------------------------------------------------------------------------------------------------------------------------    
 ciclo :: Eq a => [a] -> [a] -> Int -> [a] -> [a] --Función auxiliar que recibe dos cromosomas , un entero y una lista vacía en principio y devuelve un ciclo del primero comenzando en la posición introducida
 ciclo xs ys pos zs = if elem (xs!!pos) zs then zs
-    else ciclo xs ys (posEnLista (xs!!pos) ys) (zs++[xs!!pos]) 
+    else ciclo xs ys (posEnLista (xs!!pos) ys) (zs++[xs!!pos])
 
 generaNumAleatorioRango _ _ = 2.1
 
@@ -117,3 +113,6 @@ seleccionElitistaMinimizar xss it fitness = [fst ((sortBy ordena listaTuplas) !!
 ordena :: ([a],Double) -> ([a],Double) -> Ordering
 ordena (_,a) (_,b) | a<=b = LT
                    | otherwise = GT
+
+deleteAt :: Int -> [a] -> [a]
+deleteAt i items = take i items ++ drop (1 + i) items
