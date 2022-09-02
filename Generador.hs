@@ -13,6 +13,7 @@ module Generador(
 import System.Random
 import System.IO.Unsafe
 import Data.List
+import AGenetico
 
 --recibe un número aleatorio d y devuelve otro en rango [0, n)
 ceroAEnteroRango :: Int -> Double -> Int
@@ -67,3 +68,17 @@ splitList xs n = split2 xs (div (length xs) n)
 split2 :: [a] -> Int -> [[a]]
 split2 [] _ = []
 split2 xs l = (take l xs) : split2 (drop l xs) l
+
+
+desordena :: [a] -> IO [a]
+desordena xs = do
+    r <- desordenaAux xs ((length xs)-1)
+    return r
+    
+desordenaAux :: [a] -> Int -> IO [a]
+desordenaAux [] _ = return []
+desordenaAux xs n = do
+    m <- randIntRango 0 n
+    let e = xs !! m
+    es <- desordenaAux (deleteAt m xs) (n-1)
+    return (e:es)
