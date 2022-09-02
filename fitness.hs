@@ -1,4 +1,24 @@
 
+
+
+module Fitness(
+    valoresViajante
+    ,fitnessViajante
+    ,distanciaManhattan
+    ,fitnessCuadradoMagico
+    ,fitnessCuadradoMagicoAux
+    ,resta15
+    ,fitnessSudoku
+    ,fitnessSudokuAux
+    ,cuentaIguales
+    ,igualesAux
+    ,borra
+    ,decodificaCuadradoMagico
+    ,decodificaSudoku
+    ,decodificaViajante
+
+) where
+
 import AGenetico
 import Data.Matrix as M
 import Data.Vector as V
@@ -10,17 +30,19 @@ import Data.Vector as V
 valoresViajante :: Int -> [(Int,Int)] --Coordenadas que utilizaremos para el problema del viajante (para asegurar que el camino mínimo sea 4n)
 valoresViajante n = [(x,y) | x <- [0..n] , y <- [0..n] , (x==0 || y==0 || x==n || y==n)]
 
-fitnessProblemaViajante :: [Int] -> Double 
-fitnessProblemaViajante xs =  Prelude.sum ([distanciaManhattan ((valoresViajante 10)!!(xs!!x)) ((valoresViajante 10)!!(xs!!(x+1))) | x <- [0..((Prelude.length xs)-2)]]  
-                                Prelude.++  [distanciaManhattan ((valoresViajante 10) !! 0) ((valoresViajante 10) !! 39)])
+fitnessViajante :: [Int] -> Double 
+fitnessViajante xs =  Prelude.sum ([distanciaManhattan ((valoresViajante 10)!!(xs!!x)) ((valoresViajante 10)!!(xs!!(x+1))) | x <- [0..((Prelude.length xs)-2)]]  
+                        Prelude.++  [distanciaManhattan ((valoresViajante 10) !! 0) ((valoresViajante 10) !! 39)])
                                 
                                 --Mediante una lista por compresión obtenemos los valores de las distancias Manhattan segun el cromosoma values in range introducido y 
                                 --concatenamos la distancia entre el primer punto y el último (el cromosoma sólo indica el orden en el que evaluamos las distancias)
                                 -- (Funcion de minimización)
+                                -- Posible cromosoma:  [0..39]
 
 distanciaManhattan :: (Int,Int) -> (Int,Int) -> Double
 distanciaManhattan (a1,a2) (b1,b2) = sqrt ( fromIntegral(((a1-b1)^2)) + fromIntegral(((a2-b2)^2)) )
 
+                                --posible cromosoma: [1..9]
 fitnessCuadradoMagico :: [Int] -> Double
 fitnessCuadradoMagico xs = fitnessCuadradoMagicoAux (M.fromList 3 3 xs)
     
@@ -38,4 +60,33 @@ fitnessCuadradoMagicoAux matriz = fromIntegral (Prelude.sum (Prelude.map (abs) (
 resta15 :: Int -> Int
 resta15 x = x-15    
     
+--Ejemplo sudoku [2,1,9,5,4,3,6,7,8,5,4,3,8,7,6,9,1,2,8,7,6,2,1,9,3,4,5,4,3,2,7,6,5,8,9,1,7,6,5,1,9,8,2,3,4,1,9,8,4,3,2,5,6,7,3,2,1,6,5,4,7,8,9,6,5,4,9,8,7,1,2,3,9,8,7,3,2,1,4,5,6]
+--posible cromosoma: Prelude.concat [[1..9] | x<-[0..8]]
+fitnessSudoku :: [Int] -> Double
+fitnessSudoku xs = fitnessSudokuAux (M.fromList 9 9 xs)
 
+fitnessSudokuAux :: Matrix Int -> Double --Un sudoku será valido cuando la función fitness devuelva 0, minimizacion
+fitnessSudokuAux matriz = Prelude.sum listaSumas where
+    listaSumas = sumaColumnas Prelude.++ sumaFilas Prelude.++ sumaCuadrados where
+        sumaColumnas = [cuentaIguales (V.toList (getCol x matriz)) | x <- [1..9]]
+        sumaFilas = [cuentaIguales (V.toList (getRow x matriz)) | x <- [1..9]]
+        sumaCuadrados = [cuentaIguales (M.toList (submatrix x y x y matriz)) | x <- [1,4,7], y <- [3,6,9], x<y, y-x==2]
+
+cuentaIguales :: [Int] -> Double 
+cuentaIguales xs = igualesAux xs 0.0
+
+igualesAux :: [Int] -> Double -> Double
+igualesAux [] acum = acum 
+igualesAux (x:xs) acum = igualesAux (borra x xs) (acum + (fromIntegral (Prelude.length (Prelude.filter (==x) (xs))))) 
+
+borra :: Int -> [Int] -> [Int]
+borra k xs = Prelude.foldr (\x ac -> if x==k then ac else x:ac) [] xs
+
+decodificaCuadradoMagico :: [Int] -> Matrix Int
+decodificaCuadradoMagico xs = M.fromList 3 3 xs
+
+decodificaSudoku :: [Int] -> Matrix Int
+decodificaSudoku xs = M.fromList 9 9 xs
+
+decodificaViajante :: [Int] -> [(Int,Int)]
+decodificaViajante xs = [(valoresViajante 10)!!x | x<-xs] 

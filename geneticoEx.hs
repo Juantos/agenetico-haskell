@@ -1,3 +1,8 @@
+import AGenetico
+import Fitness
+import Generador
+
+
 --PARÁMETROS DEL ALGORITMO GENÉTICO
 numIteraciones :: Int --criterio de parada del algoritmo genético 
 numIteraciones = 10000
@@ -21,5 +26,21 @@ valoresGenPermutation = [1..9] --valores para el ejemplo del cuadrado mágico
 
 porcentajeMezcla :: [(String,Int)] --Describe que mutaciones y combinaciones utilizar y en qué porcentaje
 porcentajeMezcla = [("padres",20),("comb1",0),("comb2",0),("combCiclos",70),("mut1",0),("mutInter",5),("mutInser",5)]
+
+objetivo :: String --objetivo de maximizacion o minimización de la función fitness, posibles valores "MIN" Y "MAX"
+objetivo = "MAX"
+
+metodoSeleccion :: String --metodo de selección utilizado por el algoritmo
+
+
 --Cuando trabajamos con cromosomas de tipo Permutation, solo podemos utilizar combinaciones y mutaciones que alteren las posiciones de los genes sin que el conjunto de valores cambie
 --La suma de los porcentajes debe ser 100
+
+ejecutaGenético :: [Int] --los parámetros que utiliza son declarados fuera de la función y devuelve el cromosoma seleccionado 
+ejecutaGenético = itera [1..9] numIteraciones
+
+
+itera :: [Int] -> Int -> [Int]
+itera [] _ = []
+itera xs it = do
+    
