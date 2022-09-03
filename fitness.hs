@@ -25,6 +25,7 @@ import Data.Vector as V
 
 
 
+
 --FUNCIONES FITNESS
 
 valoresViajante :: Int -> [(Int,Int)] --Coordenadas que utilizaremos para el problema del viajante (para asegurar que el camino mínimo sea 4n)

@@ -90,8 +90,7 @@ deleteAt i items = take i items ++ drop (1 + i) items
 dosAleatorios :: IO [Int]
 dosAleatorios = do
     r1 <- randIntRango 0 100
-    r2 <- randIntRango 0 100
-    return ([r1]++[r2])
+    return ([r1]++[r1])
 
 generaPoblacionPermutation :: [Int] -> Int -> IO [[Int]] --recibe un cromosoma ejemplo, un entero y devuelve una lista que lo desordena i veces
 generaPoblacionPermutation xs 0 = return []
