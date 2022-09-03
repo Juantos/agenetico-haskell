@@ -12,14 +12,20 @@ module AGenetico(
     ,permutacioninter
     ,interludio
     ,permutacioninser
-    ,deleteAt
     ,posEnLista
     ,ciclo
+    ,seleccionRuleta
+    ,seleccionRuletaAux
+    ,seleccionElitistaMaximizar
+    ,seleccionElitistaMinimizar
+    ,ordena
 
 ) where
 import Data.List
 import System.Random
 import System.IO.Unsafe
+import Generador
+
 
 --COMBINACIONES
 --------------------------------------------------------------------------------------------------------------------------
@@ -117,5 +123,3 @@ ordena :: ([a],Double) -> ([a],Double) -> Ordering
 ordena (_,a) (_,b) | a<=b = LT
                    | otherwise = GT
 
-deleteAt :: Int -> [a] -> [a]
-deleteAt i items = take i items ++ drop (1 + i) items

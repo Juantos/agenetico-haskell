@@ -7,13 +7,14 @@ module Generador(
     generaEstadoInicial,
     generaPoblacion,
     splitList,
-    split2
+    split2,
+    deleteAt,
+    generaPoblacionPermutation
 ) where
 
 import System.Random
 import System.IO.Unsafe
 import Data.List
-import AGenetico
 
 --recibe un número aleatorio d y devuelve otro en rango [0, n)
 ceroAEnteroRango :: Int -> Double -> Int
@@ -82,3 +83,19 @@ desordenaAux xs n = do
     let e = xs !! m
     es <- desordenaAux (deleteAt m xs) (n-1)
     return (e:es)
+
+deleteAt :: Int -> [a] -> [a]
+deleteAt i items = take i items ++ drop (1 + i) items
+
+dosAleatorios :: IO [Int]
+dosAleatorios = do
+    r1 <- randIntRango 0 100
+    r2 <- randIntRango 0 100
+    return ([r1]++[r2])
+
+generaPoblacionPermutation :: [Int] -> Int -> IO [[Int]] --recibe un cromosoma ejemplo, un entero y devuelve una lista que lo desordena i veces
+generaPoblacionPermutation xs 0 = return []
+generaPoblacionPermutation xs i = do
+    r <- desordena xs
+    rs <- generaPoblacionPermutation xs (i-1)
+    return (r:rs)
