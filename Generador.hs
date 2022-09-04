@@ -28,7 +28,6 @@ generaAleatorioIO = randomIO
 randIntRango :: Int -> Int -> IO Int
 randIntRango x y = getStdRandom (randomR (x,y))
 
-
 --genera una lista aleatoria utilizando un seed
 generaListaAleatoria :: Int -> [Double]
 generaListaAleatoria seed = randoms (mkStdGen seed)
