@@ -18,13 +18,13 @@ tamanoCromosoma :: Int --length de la lista que representa al cromosoma
 tamanoCromosoma = 9  --valores para el ejemplo del cuadrado mágico
 
 valoresGenRange :: (Int,Int) --valor mínimo y máximo que puede tomar un gen en el cromosoma (para ValuesInRange)
-valoresGenRange = (0,100)
+valoresGenRange = (1,9)
 
 valoresGenPermutation :: [Int]
 valoresGenPermutation = [1..9] --valores para el ejemplo del cuadrado mágico
 
 porcentajeMezcla :: [(String,Int)] --Describe que mutaciones y combinaciones utilizar y en qué porcentaje
-porcentajeMezcla = [("padres",20),("comb1",1),("comb2",1),("combCiclos",70),("mut1",1),("mutInter",5),("mutInser",5)]
+porcentajeMezcla = [("padres",20),("comb1",50),("comb2",1),("combCiclos",70),("mut1",1),("mutInter",5),("mutInser",5)]
 
 data Objetivo = Max | Min  --Objetivo de la funcion
 obj :: Objetivo
@@ -34,6 +34,11 @@ data MetodoSeleccion = Elitista | Ruleta  --Metodo de selección utilizado por e
                                         deriving Eq  
 mSeleccion :: MetodoSeleccion
 mSeleccion = Elitista
+
+fitness :: ([Int]->Double)
+fitness = fitnessCuadradoMagico
+
+
 
 --Cuando trabajamos con cromosomas de tipo Permutation, solo podemos utilizar combinaciones y mutaciones que alteren las posiciones de los genes sin que el conjunto de valores cambie
 --La suma de los porcentajes debe ser 100
@@ -45,9 +50,10 @@ itera xs Permutation Min = do
     randomPoblacion <- randIntRango 0 (poblacion-1)
     randomPadres <- randIntRango 0 ((snd (porcentajeMezcla!!0))-1)
     randomRange <- randIntRango (fst valoresGenRange) (snd valoresGenRange)
-    randomTamCromosoma <- randIntRango 0 (tamanoCromosoma)
-    let padres = {-if (mSeleccion == Elitista) then -} seleccionElitistaMaximizar lista ((snd (porcentajeMezcla!!0))) fitnessCuadradoMagico 
-        --else seleccionRuleta xs ((snd (porcentajeMezcla!!0))*(poblacion/100)) fitnessCuadradoMagico 
+    randomTamCromosoma <- randIntRango 0 (tamanoCromosoma-1)
+    --let listaTuplas = zip lista (map fitness lista)
+    let padres = seleccionElitistaMinimizar lista ((snd (porcentajeMezcla!!0))) fitness 
+    --let padres = [seleccionRuletaAux listaTuplas (fromIntegral randomRuleta) 0.0 | x <- [1..((snd (porcentajeMezcla!!0)))]]
     let comb1 = [combinacion1 (padres!!randomPadres) (padres!!randomPadres) randomTamCromosoma | x <- [1..((snd (porcentajeMezcla!!1)))]]
     let comb2 = [combinacion2 (padres!!randomPadres) (padres!!randomPadres) | x <- [1..((snd (porcentajeMezcla!!2)))]]
     let combCiclos = [combinacionCiclos (padres!!randomPadres) (padres!!randomPadres) randomTamCromosoma | x <- [1..((snd (porcentajeMezcla!!3)))]]

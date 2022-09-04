@@ -91,3 +91,4 @@ decodificaSudoku xs = M.fromList 9 9 xs
 
 decodificaViajante :: [Int] -> [(Int,Int)]
 decodificaViajante xs = [(valoresViajante 10)!!x | x<-xs] 
+
