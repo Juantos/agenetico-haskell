@@ -12,7 +12,6 @@ module AGenetico(
     ,combinacionCiclosAux
     ,mutacion1
     ,ejecutaMutacion1Int
-    ,permutacioninter
     ,ejecutaPermutacionInter
     ,interludio
     ,permutacioninser
@@ -31,6 +30,7 @@ import Data.List
 import System.Random
 import System.IO.Unsafe
 import Generador
+import System.Win32 (peekProcessEntry32)
 
 --COMBINACIONES
 --------------------------------------------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ combinacion1 _ _ _ 0 = return []
 combinacion1 padres tC porcentaje n = do
     rp1 <- randIntRango 0 porcentaje
     rp2 <- randIntRango 0 porcentaje
-    pos <- randIntRango 0 (tC)
+    pos <- randIntRango 0 (tC-1)
     let c = take pos (padres!!rp1) ++ drop pos (padres!!rp2)
     cs <- combinacion1 padres tC porcentaje (n-1)
     return (c:cs)
@@ -79,7 +79,7 @@ combinacionAux (x:xs) (y:ys) i zs
 
 combinacion2Aux :: [a] -> [a] -> [a] -> Int -> [a]
 combinacion2Aux [] [] zs _ =  zs
-combinacion2Aux (x:xs) (y:ys) zs 0 = combinacion2Aux xs ys (zs++[x]) 1 
+combinacion2Aux (x:xs) (y:ys) zs 0 = combinacion2Aux xs ys (zs++[x]) 1 --Alternador
 combinacion2Aux (x:xs) (y:ys) zs 1 = combinacion2Aux xs ys (zs++[y]) 0 
 
 combinacion2 :: [[a]] -> Int -> Int -> IO [[a]]
@@ -99,16 +99,25 @@ ejecutaCombinacion2 padres mezcla = do
 
 
 --------------------------------------------------------------------------------------------------------------------------
-combinacionCiclos :: Eq a => [a] -> [a] -> Int -> [a] --Recibe dos cromosomas y un número aleatorio y devuelve un cromosoma nuevo utilizando el cruce basado en ciclos (para cromosomas en los que los elementos no pueden repetirse)
-combinacionCiclos xs ys i = combinacionCiclosAux xs ys (ciclo xs ys i []) []
 
-ejecutaCombinacionCiclos :: Eq a => [[a]] -> Int -> [(String,Int)] -> IO [[a]]
-ejecutaCombinacionCiclos padres tC mezcla = do
-    rp1 <- randIntRango 0 ((snd (mezcla!!0))-1)
-    rp2 <- randIntRango 0 ((snd (mezcla!!0))-1)
-    rtc <- randIntRango 0 (tC)
-    let combiCiclos = [combinacionCiclos (padres!!rp1) (padres!!rp2) rtc | x <- [1..(snd (mezcla!!3))]]
-    return combiCiclos
+--Input: lista con todos los padres, tamaño de cromosoma y el porcentaje de veces que se ejecutará esta combinación del total de mutaciones/combinaciones
+--       n es el número de combinaciones que queremos obtener
+--Proceso: 
+--Output: de entre todos los padres, uno mutado
+
+combinacionCiclos :: Eq a => [[a]] -> Int -> Int -> Int -> IO [[a]] --Recibe dos cromosomas y un número aleatorio y devuelve un cromosoma nuevo utilizando el cruce basado en ciclos (para cromosomas en los que los elementos no pueden repetirse)
+combinacionCiclos _ _ _ 0 = return []
+combinacionCiclos padres tC porcentaje n = do
+    rp1 <- randIntRango 0 porcentaje
+    rp2 <- randIntRango 0 porcentaje
+    rtc <- randIntRango 0 tC
+    let p1 = padres!!rp1
+    let p2 = padres!!rp2
+    let c = combinacionCiclosAux p1 p2 (ciclo p1 p2 rtc []) []
+    cs <- combinacionCiclos padres tC porcentaje (n-1)
+    return (c:cs)
+
+    --combinacionCiclosAux xs ys (ciclo xs ys i []) []
 
 combinacionCiclosAux :: Eq a => [a] -> [a] -> [a] -> [a] -> [a] --Recibe los mismos cromosomas que la función anterior + la lista con el ciclo a utilizar y una lista vacia para la recursion
 combinacionCiclosAux [] [] ciclos zs = zs
@@ -116,10 +125,24 @@ combinacionCiclosAux (x:xs) (y:ys) ciclos zs
     | elem x ciclos = combinacionCiclosAux xs ys ciclos (zs ++ [x])
     | otherwise = combinacionCiclosAux xs ys ciclos (zs ++ [y])
 
+ejecutaCombinacionCiclos :: Eq a => [[a]] -> Int -> [(String,Int)] -> IO [[a]]
+ejecutaCombinacionCiclos padres tC mezcla = do
+    let porcentaje = ((snd (mezcla!!0))-1)
+    combi <- combinacionCiclos padres (tC-1) porcentaje (snd (mezcla!!3))
+    return combi
+
      
 
 --MUTACIONES
 --------------------------------------------------------------------------------------------------------------------------
+
+
+--Input: lista con todos los padres, tamaño de cromosoma y el porcentaje de veces que se ejecutará esta combinación del total de mutaciones/combinaciones
+--       n es el número de veces que queremos ejecutar combinación 1
+--Proceso: muta, de cada padre introducido, un gen aleatorio por otro valor aleatorio
+--Output: padres mutados
+
+
 mutacion1 :: [a] -> Int -> a -> [a]
 mutacion1 xs pos a = (take pos xs) ++ [a] ++ (reverse (take ((length xs)-(pos+1)) (reverse xs)))
 
@@ -136,39 +159,89 @@ iteraMutacion1Int padres tC valoresGenRange porcentaje n = do
 ejecutaMutacion1Int :: [[Int]] -> Int -> (Int,Int) -> [(String,Int)] -> IO [[Int]]
 ejecutaMutacion1Int padres tC valoresGenRange mezcla = do
     let porcentaje = (snd (mezcla!!0))-1
-    mut1 <- iteraMutacion1Int padres tC valoresGenRange porcentaje ((snd (mezcla!!4))-1)
+    mut1 <- iteraMutacion1Int padres (tC-1) valoresGenRange porcentaje ((snd (mezcla!!4)))
     return mut1
 
 
---[mutacion1 (padres!!rp) rtc randomRange| x <- [1..((snd (mezcla!!4)))]]
---num es un numero aleatorio introducido como parametro de la función 
 -------------------------------------------------------------------------------------------------------------------------
-permutacioninter :: [a] -> Int -> Int -> [a]   --Recibe el cromosoma y las dos posiciones a intercambiar (importante introducir los numeros en orden)
-permutacioninter xs pos1 pos2 = (take pos1 xs) ++ [xs !! pos2] ++ (interludio xs pos1 pos2) ++ [xs !! pos1] ++ (drop (pos2+1) xs)
+--PERMUTACIÓN POR INTERCAMBIO: se intercambian los valores de dos posiciones aleatorias
+
+
+--Input: lista con todos los padres, tamaño de cromosoma y el porcentaje de veces que se ejecutará esta combinación del total de mutaciones/combinaciones
+--       n es el número de permutaciones que queremos obtener
+--Proceso: muta, para un número de padres concreto (según el porcentaje asignado a esta permutación), el cromosoma
+--          recibiendo dos posiciones e intercambiándolas de sitio
+--Output: lista de padres mutados
+
+
+intercambiaValores :: [a] -> Int -> Int -> [a]   --Recibe el cromosoma y las dos posiciones a intercambiar (importante introducir los numeros en orden)
+intercambiaValores xs pos1 pos2 = (take pos1 xs) ++ [xs !! pos2] ++ (interludio xs pos1 pos2) ++ [xs !! pos1] ++ (drop (pos2+1) xs)
+interludio :: [a] -> Int -> Int -> [a]
+interludio xs pos1 pos2 = take (pos2-(pos1+1)) (drop (pos1+1) xs)
+
+
+permutacionIntercambio :: [a] -> Int -> IO [a]
+permutacionIntercambio padre tC = do
+    rtc1 <- randIntRango 0 (tC)
+    rtc2 <- randIntRango 0 (tC)
+    if rtc1 < rtc2 --comprueba qué posición es menor
+        then do
+            let r = intercambiaValores padre rtc1 rtc2
+            return r
+        else do
+            if rtc1 > rtc2
+                then do
+                    let r = intercambiaValores padre rtc2 rtc1
+                    return r
+                else do
+                    return padre
+
+iteraPermutaIntercambios :: [[a]] -> Int -> Int -> Int -> IO [[a]]
+iteraPermutaIntercambios _ _ _ 0 = return []
+iteraPermutaIntercambios padres tC porcentaje n = do
+    rp <- randIntRango 0 porcentaje
+    inter <- permutacionIntercambio (padres!!rp) tC
+    inters <- iteraPermutaIntercambios padres tC porcentaje (n-1)
+    return (inter:inters)
 
 ejecutaPermutacionInter :: [[a]] -> Int -> [(String, Int)] -> IO [[a]]
 ejecutaPermutacionInter padres tC mezcla = do
-    rp <- randIntRango 0 ((snd (mezcla!!0))-1)
-    rtc1 <- randIntRango 0 (tC)
-    rtc2 <- randIntRango 0 (tC)
-    let inter = [permutacioninter (padres!!rp) rtc1 rtc2 | x <- [1..((snd (mezcla!!5)))]]
-    return inter
+    let porcentaje = (snd (mezcla!!0))-1
+    r <- iteraPermutaIntercambios padres (tC-1) porcentaje (snd (mezcla!!5))
+    return r
 
---[permutacioninter (padres!!randomPadres) randomTamCromosoma randomTamCromosoma | x <- [1..((snd (porcentajeMezcla!!5)))]]
 
-interludio :: [a] -> Int -> Int -> [a]
-interludio xs pos1 pos2 = take (pos2-(pos1+1)) (drop (pos1+1) xs)
+
 --------------------------------------------------------------------------------------------------------------------------
+
+--PERMUTACIÓN POR INSERCIÓN: se cambia un gen de una posición a otra especificada
+
+
+--Input: lista con todos los padres, tamaño de cromosoma y el porcentaje de veces que se ejecutará esta combinación del total de mutaciones/combinaciones
+--       n es el número de permutaciones que queremos obtener
+--Proceso: muta, para un número de padres concreto (según el porcentaje asignado a esta permutación), el cromosoma
+--          recibiendo la posición donde se encuentra un gen e insertándola en otra especificada
+--Output: lista de padres mutados
+
+
 permutacioninser :: [a] -> Int -> Int -> [a]   --Recibe el cromosoma la posición donde insertar el gen y la posicion del gen a insertar
 permutacioninser xs pos1 pos2 = (take (pos1+1) xs) ++ [xs !! pos2] ++ (drop (pos1+1) (deleteAt pos2 xs))
 
-ejecutaPermutacionInser :: [[a]] -> Int -> [(String, Int)] -> IO [[a]]
-ejecutaPermutacionInser padres tC mezcla = do
-    rp <- randIntRango 0 ((snd (mezcla!!0))-1)
+iteraPermutacionInser :: [[a]] -> Int -> Int -> Int -> IO [[a]]
+iteraPermutacionInser _ _ _ 0 = return []
+iteraPermutacionInser padres tC porcentaje n = do
+    rp <- randIntRango 0 porcentaje
     rtc1 <- randIntRango 0 (tC)
     rtc2 <- randIntRango 0 (tC)
-    let inser = [permutacioninser (padres!!rp) rtc1 rtc2 | x <- [1..((snd (mezcla!!6)))]]
-    return inser
+    let inser = permutacioninser (padres!!rp) rtc1 rtc2
+    insers <- iteraPermutacionInser padres tC porcentaje (n-1)
+    return (inser:insers)
+
+ejecutaPermutacionInser :: [[a]] -> Int -> [(String, Int)] -> IO [[a]]
+ejecutaPermutacionInser padres tC mezcla = do
+    let porcentaje = (snd (mezcla!!0))-1
+    r <- iteraPermutacionInser padres (tC-1) porcentaje (snd (mezcla!!6))
+    return r
 
 --------------------------------------------------------------------------------------------------------------------------
 --permutacionmezcla :: [a] -> Int -> --Esta creo que mejor no hacerla porque tiene una componente aleatoria que tal y como es haskell veo complicada
