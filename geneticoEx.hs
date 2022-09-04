@@ -53,7 +53,7 @@ itera xs Permutation Min = do
     let combCiclos = [combinacionCiclos (padres!!randomPadres) (padres!!randomPadres) randomTamCromosoma | x <- [1..((snd (porcentajeMezcla!!3)))]]
     let mut1 = [mutacion1 (padres!!randomPadres) randomTamCromosoma randomRange | x <- [1..((snd (porcentajeMezcla!!4)))]]
     let mutInter = [permutacioninter (padres!!randomPadres) randomTamCromosoma randomTamCromosoma | x <- [1..((snd (porcentajeMezcla!!5)))]]
-    let mutInser = [permutacioninser (padres!!randomPadres) randomTamCromosoma randomTamCromosoma | x <- [1..((snd (porcentajeMezcla!!6)))]]
+    let mutInser = [permutacioninser (padres!!randomPadres) randomTamCromosoma randomTamCromosoma | x <- [1..((snd (porcentajeMezcla!!6)))]] 
     return (padres++comb1++comb2++combCiclos++mut1++mutInter++mutInser)
 
 --PROBLEMA ACTUAL: necesitamos declarar una barbaridad de numeros aleatorios
@@ -64,6 +64,6 @@ itera xs Permutation Min = do
 
 --pruebaElitista :: IO [[Int]]
 --pruebaElitista = do
---   let r = seleccionElitistaMaximizar ([[3,5,6,7,8,1,4,9,2],[1,8,2,6,9,4,7,3,5],[7,2,6,1,3,8,9,4,5],[6,4,3,2,8,5,9,7,1],[7,3,4,9,6,5,1,8,2],[4,8,1,6,3,7,9,5,2],[6,9,2,3,8,4,7,5,1],[1,2,9,5,6,4,7,8,3],[1,8,7,4,2,5,9,6,3]]) 2 fitnessCuadradoMagico
+--   let r = seleccionElitistaMinimizar ([[3,5,6,7,8,1,4,9,2],[1,8,2,6,9,4,7,3,5],[7,2,6,1,3,8,9,4,5],[6,4,3,2,8,5,9,7,1],[7,3,4,9,6,5,1,8,2],[4,8,1,6,3,7,9,5,2],[6,9,2,3,8,4,7,5,1],[1,2,9,5,6,4,7,8,3],[1,8,7,4,2,5,9,6,3]]) 2 fitnessCuadradoMagico
 --   return r
 
