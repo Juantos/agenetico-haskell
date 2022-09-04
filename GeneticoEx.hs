@@ -34,7 +34,7 @@ valoresGenPermutation :: [Int]
 valoresGenPermutation = [1..9] --valores para el ejemplo del cuadrado mágico
 
 porcentajeMezcla :: [(String,Int)] --Describe que mutaciones y combinaciones utilizar y en qué porcentaje
-porcentajeMezcla = [("padres",20),("comb1",10),("comb2",1),("combCiclos",70),("mut1",1),("mutInter",5),("mutInser",5)]
+porcentajeMezcla = [("padres",20),("comb1",10),("comb2",1),("combCiclos",70),("mut1",2),("mutInter",5),("mutInser",5)]
 
 data Objetivo = Max | Min  --Objetivo de la funcion
 obj :: Objetivo
@@ -61,7 +61,7 @@ itera xs Permutation Min = do
     permutInter <- ejecutaPermutacionInter padres tamanoCromosoma porcentajeMezcla
     permutInser <- ejecutaPermutacionInser padres tamanoCromosoma porcentajeMezcla
     --return (padres++comb1++comb2++combCiclos++mut1++permutInter++permutInser)
-    return (padres ++ [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]] ++ mut1)
+    return (padres ++ [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]] ++ permutInser)
 
 --PROBLEMA ACTUAL: necesitamos declarar una barbaridad de numeros aleatorios
  
