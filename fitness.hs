@@ -16,6 +16,8 @@ module Fitness(
     ,decodificaCuadradoMagico
     ,decodificaSudoku
     ,decodificaViajante
+    ,mejorMax
+    ,mejorMin
 
 ) where
 
@@ -32,13 +34,13 @@ valoresViajante :: Int -> [(Int,Int)] --Coordenadas que utilizaremos para el pro
 valoresViajante n = [(x,y) | x <- [0..n] , y <- [0..n] , (x==0 || y==0 || x==n || y==n)]
 
 fitnessViajante :: [Int] -> Double 
-fitnessViajante xs =  Prelude.sum ([distanciaManhattan ((valoresViajante 10)!!(xs!!x)) ((valoresViajante 10)!!(xs!!(x+1))) | x <- [0..((Prelude.length xs)-2)]]  
-                        Prelude.++  [distanciaManhattan ((valoresViajante 10) !! 0) ((valoresViajante 10) !! 39)])
+fitnessViajante xs =  Prelude.sum ([distanciaManhattan ((valoresViajante 5)!!(xs!!x)) ((valoresViajante 5)!!(xs!!(x+1))) | x <- [0..((Prelude.length xs)-2)]]  
+                        Prelude.++  [distanciaManhattan ((valoresViajante 5) !! 0) ((valoresViajante 5) !! 19)])
                                 
                                 --Mediante una lista por compresión obtenemos los valores de las distancias Manhattan segun el cromosoma values in range introducido y 
                                 --concatenamos la distancia entre el primer punto y el último (el cromosoma sólo indica el orden en el que evaluamos las distancias)
                                 -- (Funcion de minimización)
-                                -- Posible cromosoma:  [0..39]
+                                -- Posible cromosoma:  [0..19]
 
 distanciaManhattan :: (Int,Int) -> (Int,Int) -> Double
 distanciaManhattan (a1,a2) (b1,b2) = sqrt ( fromIntegral(((a1-b1)^2)) + fromIntegral(((a2-b2)^2)) )
@@ -67,7 +69,7 @@ fitnessSudoku :: [Int] -> Double
 fitnessSudoku xs = fitnessSudokuAux (M.fromList 9 9 xs)
 
 fitnessSudokuAux :: Matrix Int -> Double --Un sudoku será valido cuando la función fitness devuelva 0, minimizacion
-fitnessSudokuAux matriz = Prelude.sum listaSumas where
+fitnessSudokuAux matriz = (Prelude.sum listaSumas) + (100*cuentaIguales (M.toList matriz)) where
     listaSumas = sumaColumnas Prelude.++ sumaFilas Prelude.++ sumaCuadrados where
         sumaColumnas = [cuentaIguales (V.toList (getCol x matriz)) | x <- [1..9]]
         sumaFilas = [cuentaIguales (V.toList (getRow x matriz)) | x <- [1..9]]
@@ -83,12 +85,17 @@ igualesAux (x:xs) acum = igualesAux (borra x xs) (acum + (fromIntegral (Prelude.
 borra :: Int -> [Int] -> [Int]
 borra k xs = Prelude.foldr (\x ac -> if x==k then ac else x:ac) [] xs
 
-decodificaCuadradoMagico :: [Int] -> Matrix Int
-decodificaCuadradoMagico xs = M.fromList 3 3 xs
+decodificaCuadradoMagico :: [Int] -> IO ()
+decodificaCuadradoMagico xs = print (M.fromList 3 3 xs)
 
-decodificaSudoku :: [Int] -> Matrix Int
-decodificaSudoku xs = M.fromList 9 9 xs
+decodificaSudoku :: [Int] -> IO ()
+decodificaSudoku xs = print (M.fromList 9 9 xs)
 
-decodificaViajante :: [Int] -> [(Int,Int)]
-decodificaViajante xs = [(valoresViajante 10)!!x | x<-xs] 
+decodificaViajante :: [Int] -> IO ()
+decodificaViajante xs = print [(valoresViajante 10)!!x | x<-xs] 
 
+mejorMax :: ([Int]->Double) -> [[Int]] -> [Int]
+mejorMax fitness xs = (seleccionElitistaMinimizar xs 1 fitness)!!0
+
+mejorMin :: ([Int]->Double) -> [[Int]] -> [Int]
+mejorMin fitness xs = (seleccionElitistaMinimizar xs 1 fitness)!!0
