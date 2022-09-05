@@ -95,7 +95,7 @@ iteraciones xs tcromosoma Max it
 mejorMax :: ([Int]->Double) -> IO[[Int]] -> [Int]
 mejorMax fitness xs = do
     lista <- xs
-    cr <- (seleccionElitistaMaximizar lista!!0 1 fitness)!!0
+    cr <- (seleccionElitistaMaximizar lista 1 fitness)!!0
     return cr
 
 
