@@ -272,7 +272,7 @@ seleccionRuletaAux (xs:xss) num acum =
     else fst xs
 
                                                                     
-seleccionElitistaMaximizar :: Eq a => [[a]] -> Int -> ([a] -> Double) -> [[a]] --Recibe la poblacion de la iteracion anterior, el número de individuos a seleccionar la funcion fitness y devuelve los individuos seleccionados 
+seleccionElitistaMaximizar :: Eq a => [[a]] -> Int -> ([a] -> Double) -> [[a]] --Recibe la poblacion de la iteracion anterior, el número de individuos a seleccionar, la funcion fitness y devuelve los individuos seleccionados 
 seleccionElitistaMaximizar xss it fitness = [fst (reverse (sortBy ordena listaTuplas) !! x) | x <- [1..it]] where
     listaTuplas = zip xss (map fitness xss)
 

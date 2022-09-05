@@ -11,18 +11,24 @@ module GeneticoEx(
 import AGenetico
 import Fitness
 import Generador
-
+import Data.Matrix
+import Data.List
 
 --PARÁMETROS DEL ALGORITMO GENÉTICO
 numIteraciones :: Int --criterio de parada del algoritmo genético 
 numIteraciones = 10000
 
+valorObjetivo :: Double --criterio de parada del algoritmo genético
+valorObjetivo = 0.0
+
 poblacion :: Int --número de cromosomas que se evalúan en cada iteración (múltiplo de 100)
 poblacion = 100
 
-data TipoCromosoma = ValuesInRange | Permutation --valores posibles "ValuesInRange" "Permutation"
+data TipoCromosoma = ValuesInRange | Permutation  --valores posibles "ValuesInRange" "Permutation"
+                                        deriving Eq 
 tCromosoma :: TipoCromosoma
 tCromosoma = Permutation
+                        
 
 tamanoCromosoma :: Int --length de la lista que representa al cromosoma
 tamanoCromosoma = 9  --valores para el ejemplo del cuadrado mágico
@@ -45,6 +51,12 @@ data MetodoSeleccion = Elitista | Ruleta  --Metodo de selección utilizado por e
 mSeleccion :: MetodoSeleccion
 mSeleccion = Elitista
 
+fitness :: ([Int] -> Double)
+fitness = fitnessCuadradoMagico
+
+decodifica :: ([Int] -> Matrix Int)
+decodifica = decodificaCuadradoMagico
+
 --Cuando trabajamos con cromosomas de tipo Permutation, solo podemos utilizar combinaciones y mutaciones que alteren las posiciones de los genes sin que el conjunto de valores cambie
 --La suma de los porcentajes debe ser 100
 
@@ -52,7 +64,7 @@ mSeleccion = Elitista
 itera :: IO [[Int]] -> TipoCromosoma -> Objetivo -> IO [[Int]]
 itera xs Permutation Min = do
     lista <- xs
-    let padres = {-if (mSeleccion == Elitista) then -} seleccionElitistaMaximizar lista ((snd (porcentajeMezcla!!0))) fitnessCuadradoMagico 
+    let padres = {-if (mSeleccion == Elitista) then -} seleccionElitistaMinimizar lista ((snd (porcentajeMezcla!!0))) fitness
         --else seleccionRuleta xs ((snd (porcentajeMezcla!!0))*(poblacion/100)) fitnessCuadradoMagico 
     comb1 <- ejecutaCombinacion1 padres tamanoCromosoma porcentajeMezcla
     comb2 <- ejecutaCombinacion2 padres porcentajeMezcla
@@ -60,18 +72,34 @@ itera xs Permutation Min = do
     mut1 <- ejecutaMutacion1Int padres tamanoCromosoma valoresGenRange porcentajeMezcla
     permutInter <- ejecutaPermutacionInter padres tamanoCromosoma porcentajeMezcla
     permutInser <- ejecutaPermutacionInser padres tamanoCromosoma porcentajeMezcla
-    --return (padres++comb1++comb2++combCiclos++mut1++permutInter++permutInser)
-    return (padres ++ [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]] ++ permutInser)
-
---PROBLEMA ACTUAL: necesitamos declarar una barbaridad de numeros aleatorios
- 
+    return (padres++comb1++comb2++combCiclos++mut1++permutInter++permutInser)
+    --return (padres ++ [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]] ++ permutInser)
 
 
+ejecutaGenetico :: TipoCromosoma -> Objetivo -> IO ()--Imprime: el cromosoma seleccionado, el cromosoma decodificado, el valor de su fitness, el número de iteraciones realizadas
+ejecutaGenetico Permutation Min= do
+    lista <- generaPoblacionPermutation [1..tamanoCromosoma] poblacion
+        --lista <- generaPoblacion tamanoCromosoma poblacion (fst valoresGenRange) (snd valoresGenRange)
+    print lista 
+
+iteraciones ::  IO[[Int]] -> TipoCromosoma -> Objetivo -> Int -> [Int]
+iteraciones xs tcromosoma Max it 
+    | valorObjetivo == fitness (mejorMax fitness xs) = mejorMax fitness xs
+    | it == 0 = (mejorMax fitness xs)
+    | otherwise = iteraciones (itera xs tcromosoma Max) tcromosoma Max (it-1)
+--iteraciones xs tcromosoma Min it 
+--    | valorObjetivo == fitness fst ((sortBy ordena (zip xs (map fitness xs))) !! 0) = 
+--    | it == 0 = fitness fst ((sortBy ordena (zip xs (map fitness xs))) !! 0) 
+--    | otherwise = iteraciones (itera xs tcromosoma Min) tcromosoma Min (it-1)
+        
+mejorMax :: ([Int]->Double) -> IO[[Int]] -> [Int]
+mejorMax fitness xs = do
+    lista <- xs
+    cr <- (seleccionElitistaMaximizar lista!!0 1 fitness)!!0
+    return cr
 
 
 --prueba: itera (generaPoblacionPermutation [1..9] 100) Permutation Min
-
-
 
 --pruebaElitista :: IO [[Int]]
 --pruebaElitista = do
