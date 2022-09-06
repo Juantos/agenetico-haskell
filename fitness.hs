@@ -18,12 +18,17 @@ module Fitness(
     ,decodificaViajante
     ,mejorMax
     ,mejorMin
+    ,fitnessMochila
+    ,fitnessMochilaAux
+    ,mod2
+    ,decodificaMochila
 
 ) where
 
 import AGenetico
 import Data.Matrix as M
 import Data.Vector as V
+import Data.Vector.Mutable
 
 
 
@@ -69,7 +74,7 @@ fitnessSudoku :: [Int] -> Double
 fitnessSudoku xs = fitnessSudokuAux (M.fromList 9 9 xs)
 
 fitnessSudokuAux :: Matrix Int -> Double --Un sudoku será valido cuando la función fitness devuelva 0, minimizacion
-fitnessSudokuAux matriz = (Prelude.sum listaSumas) + (100*cuentaIguales (M.toList matriz)) where
+fitnessSudokuAux matriz = (Prelude.sum listaSumas)  where
     listaSumas = sumaColumnas Prelude.++ sumaFilas Prelude.++ sumaCuadrados where
         sumaColumnas = [cuentaIguales (V.toList (getCol x matriz)) | x <- [1..9]]
         sumaFilas = [cuentaIguales (V.toList (getRow x matriz)) | x <- [1..9]]
@@ -80,7 +85,7 @@ cuentaIguales xs = igualesAux xs 0.0
 
 igualesAux :: [Int] -> Double -> Double
 igualesAux [] acum = acum 
-igualesAux (x:xs) acum = igualesAux (borra x xs) (acum + (fromIntegral (Prelude.length (Prelude.filter (==x) (xs))))) 
+igualesAux (x:xs) acum = igualesAux (borra x xs) (acum + (fromIntegral (Prelude.length (Prelude.filter (congruente x 9) (xs))))) 
 
 borra :: Int -> [Int] -> [Int]
 borra k xs = Prelude.foldr (\x ac -> if x==k then ac else x:ac) [] xs
@@ -89,7 +94,7 @@ decodificaCuadradoMagico :: [Int] -> IO ()
 decodificaCuadradoMagico xs = print (M.fromList 3 3 xs)
 
 decodificaSudoku :: [Int] -> IO ()
-decodificaSudoku xs = print (M.fromList 9 9 xs)
+decodificaSudoku xs = print (M.fromList 9 9 (Prelude.map (+1) (Prelude.map (mod2 9) xs)))
 
 decodificaViajante :: [Int] -> IO ()
 decodificaViajante xs = print [(valoresViajante 10)!!x | x<-xs] 
@@ -99,3 +104,26 @@ mejorMax fitness xs = (seleccionElitistaMinimizar xs 1 fitness)!!0
 
 mejorMin :: ([Int]->Double) -> [[Int]] -> [Int]
 mejorMin fitness xs = (seleccionElitistaMinimizar xs 1 fitness)!!0
+
+congruente :: Int -> Int -> Int -> Bool
+congruente num1 modulo num2
+    | (num1 `mod` modulo) == (num2 `mod` modulo) = True
+    | otherwise = False
+
+mod2 :: Int -> Int -> Int
+mod2 modulo num = num `mod` modulo 
+
+fitnessMochila :: [Int] -> Double
+fitnessMochila xs = fitnessMochilaAux xs [5,3,2,6,4,2,4,2,4,1] [4,3,1,5,6,2,7,8,3,2] 50
+
+fitnessMochilaAux :: [Int] -> [Int] -> [Int] -> Int -> Double
+fitnessMochilaAux xs bs cs w
+    | Prelude.sum (multiplicaListas xs cs) <= w     = fromIntegral (Prelude.sum (multiplicaListas xs bs))
+    | otherwise                             = fromIntegral (Prelude.sum (multiplicaListas xs bs) * (-1000))
+
+multiplicaListas :: [Int] -> [Int] -> [Int]
+multiplicaListas = Prelude.zipWith (*)
+
+
+decodificaMochila :: [Int] -> IO()
+decodificaMochila xs = print xs

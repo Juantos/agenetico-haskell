@@ -14,8 +14,8 @@ module AGenetico(
     ,ejecutaMutacion1Int
     ,ejecutaPermutacionInter
     ,interludio
-    ,permutacioninser
-    ,ejecutaPermutacionInser
+    --,permutacioninser
+    --,ejecutaPermutacionInser
     ,posEnLista
     ,ciclo
     --,seleccionRuleta
@@ -264,7 +264,7 @@ ciclo :: Eq a => [a] -> [a] -> Int -> [a] -> [a] --Función auxiliar que recibe 
 ciclo xs ys pos zs = if elem (xs!!pos) zs then zs
     else ciclo xs ys (posEnLista (xs!!pos) ys) (zs++[xs!!pos])
 
-{-generaNumAleatorioRango _ _ = 2.1
+generaNumAleatorioRango _ _ = 2.1
 
 seleccionRuleta :: Eq a => [[a]] -> Int -> ([a] -> Double) -> [[a]] --Este metodo de selección debe utilizarse en funciones de maximización
 seleccionRuleta xss it fitness = [seleccionRuletaAux listaTuplas (generaNumAleatorioRango (0) (sum (map fitness xss))) 0.0 | x <- [1..it]] where
@@ -274,10 +274,12 @@ seleccionRuletaAux :: Eq a => [([a],Double)] -> Double -> Double -> [a]
 seleccionRuletaAux (xs:xss) num acum =
     if (num > (acum+(snd xs))) 
         then seleccionRuletaAux  xss num (acum + (snd xs))
-    else fst xs -}
+    else fst xs 
 
 seleccionAleatoria :: Eq a => [[a]] -> Int -> IO[[a]]
-seleccionAleatoria _ 0 = return [[]]
+seleccionAleatoria xs 1 = do
+    rtp <- randIntRango 0 ((length xs)-1)
+    return [xs!!rtp]
 seleccionAleatoria xs num = do
     rtp <- randIntRango 0 ((length xs)-1)
     selec <-(seleccionAleatoria xs (num-1))

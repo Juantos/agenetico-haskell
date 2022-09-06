@@ -51,7 +51,7 @@ generaEstadoInicial n m l = do
 
 
 
---tomando una seed, la longitud del cromosoma, el número de individuos que queremos y el rango en el que queremos que esté cada cromosoma,
+--Input: (n,m) Rango en el que se generan los genes de cada cromosoma, l la longitud del cromosoma, i numero de individuos de la poblacion
 --genera una población inicial
 --generaPoblacion :: Int -> Int -> Int -> Int -> [[Int]]
 --generaPoblacion seed l l2 n     = splitList (generaEstadoInicial seed (l2*l) n) l
