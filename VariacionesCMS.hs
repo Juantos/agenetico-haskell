@@ -1,7 +1,5 @@
-
-
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-module AGenetico(
+module VariacionesCMS(
     combinacion1
     ,ejecutaCombinacion1
     ,combinacion2
@@ -47,7 +45,7 @@ combinacion1 padres tC porcentaje n = do
     rp1 <- randIntRango 0 porcentaje
     rp2 <- randIntRango 0 porcentaje
     pos <- randIntRango 0 (tC-1)
-    let c = take pos (padres!!rp1) ++ drop pos (padres!!rp2) 
+    let c = take pos (padres!!rp1) ++ drop pos (padres!!rp2)
     cs <- combinacion1 padres tC porcentaje (n-1)
     return (c:cs)
 
@@ -59,18 +57,6 @@ ejecutaCombinacion1 padres tC mezcla = do
     return comb1
 
 
-    
-{- combinacion1 :: [a] -> [a] -> Int -> [a] --Recibe dos cromosomas y la posicion a partir de la cual termina el primero y comienza el segundo
-combinacion1 xs ys i = combinacionAux xs ys i []
-combinacion1Aux :: [a] -> [a] -> Int -> [a] -> [a]
-combinacion1Aux [x] [y] i zs
-    | i==0 = zs ++ [y]
-    | otherwise = zs ++ [x]
-    
-combinacionAux (x:xs) (y:ys) i zs 
-    |i==0 = combinacion1Aux xs ys 0 (zs++[y])
-    |otherwise = combinacion1Aux xs ys (i-1) (zs++[x])
--}
 --------------------------------------------------------------------------------------------------------------------------
 
 --Input: lista con todos los padres y el porcentaje de veces que se ejecutará esta combinación del total de mutaciones/combinaciones
@@ -248,9 +234,44 @@ ejecutaPermutacionInser padres tC mezcla = do
     r <- iteraPermutacionInser padres (tC-1) porcentaje (snd (mezcla!!6))
     return r
 
---------------------------------------------------------------------------------------------------------------------------
---permutacionmezcla :: [a] -> Int -> --Esta creo que mejor no hacerla porque tiene una componente aleatoria que tal y como es haskell veo complicada
---permutacionmezcla = 
+
+--Funciona pero no la utilizamos en ningún momento
+{-
+seleccionRuleta :: Eq a => [[a]] -> Int -> ([a] -> Double) -> [[a]] --Este metodo de selección debe utilizarse en funciones de maximización
+seleccionRuleta xss it fitness = [seleccionRuletaAux listaTuplas (generaNumAleatorioRango (0) (sum (map fitness xss))) 0.0 | x <- [1..it]] where
+    listaTuplas = zip xss (map fitness xss)
+
+seleccionRuletaAux :: Eq a => [([a],Double)] -> Double -> Double -> [a]
+seleccionRuletaAux (xs:xss) num acum =
+    if (num > (acum+(snd xs))) 
+        then seleccionRuletaAux  xss num (acum + (snd xs))
+    else fst xs 
+-}
+
+--Input: una lista de cromosomomas y el número de cromosomas que queremos obtener
+--Output: sacamos n cromosmas aleatorios de la lista original 
+seleccionAleatoria :: Eq a => [[a]] -> Int -> IO[[a]]
+seleccionAleatoria xs 1 = do
+    rtp <- randIntRango 0 ((length xs)-1)
+    return [xs!!rtp]
+seleccionAleatoria xs num = do
+    rtp <- randIntRango 0 ((length xs)-1)
+    selec <-(seleccionAleatoria xs (num-1))
+    return ((xs!!rtp):selec)
+
+
+--Input: Recibe la poblacion de la iteracion anterior, el número de individuos a seleccionar, la funcion fitness
+--Output: coge los n mejores individuos de la población según la función fitness introducida
+seleccionElitistaMaximizar :: Eq a => [[a]] -> Int -> ([a] -> Double) -> [[a]] 
+seleccionElitistaMaximizar xss it fitness = [fst (reverse (sortBy ordena listaTuplas) !! x) | x <- [1..it]] where
+    listaTuplas = zip xss (map fitness xss)
+
+seleccionElitistaMinimizar :: Eq a => [[a]] -> Int -> ([a] -> Double) -> [[a]] 
+seleccionElitistaMinimizar xss it fitness = [fst ((sortBy ordena listaTuplas) !! x) | x <- [1..it]] where
+    listaTuplas = zip xss (map fitness xss)
+  
+
+
 --------------------------------------------------------------------------------------------------------------------------
 
 --FUNCIONES AUXILIARES
@@ -264,37 +285,7 @@ ciclo :: Eq a => [a] -> [a] -> Int -> [a] -> [a] --Función auxiliar que recibe 
 ciclo xs ys pos zs = if elem (xs!!pos) zs then zs
     else ciclo xs ys (posEnLista (xs!!pos) ys) (zs++[xs!!pos])
 
-generaNumAleatorioRango _ _ = 2.1
-
-seleccionRuleta :: Eq a => [[a]] -> Int -> ([a] -> Double) -> [[a]] --Este metodo de selección debe utilizarse en funciones de maximización
-seleccionRuleta xss it fitness = [seleccionRuletaAux listaTuplas (generaNumAleatorioRango (0) (sum (map fitness xss))) 0.0 | x <- [1..it]] where
-    listaTuplas = zip xss (map fitness xss)
-
-seleccionRuletaAux :: Eq a => [([a],Double)] -> Double -> Double -> [a]
-seleccionRuletaAux (xs:xss) num acum =
-    if (num > (acum+(snd xs))) 
-        then seleccionRuletaAux  xss num (acum + (snd xs))
-    else fst xs 
-
-seleccionAleatoria :: Eq a => [[a]] -> Int -> IO[[a]]
-seleccionAleatoria xs 1 = do
-    rtp <- randIntRango 0 ((length xs)-1)
-    return [xs!!rtp]
-seleccionAleatoria xs num = do
-    rtp <- randIntRango 0 ((length xs)-1)
-    selec <-(seleccionAleatoria xs (num-1))
-    return ((xs!!rtp):selec)
-
-
-                                                                    
-seleccionElitistaMaximizar :: Eq a => [[a]] -> Int -> ([a] -> Double) -> [[a]] --Recibe la poblacion de la iteracion anterior, el número de individuos a seleccionar, la funcion fitness y devuelve los individuos seleccionados 
-seleccionElitistaMaximizar xss it fitness = [fst (reverse (sortBy ordena listaTuplas) !! x) | x <- [1..it]] where
-    listaTuplas = zip xss (map fitness xss)
-
-seleccionElitistaMinimizar :: Eq a => [[a]] -> Int -> ([a] -> Double) -> [[a]] 
-seleccionElitistaMinimizar xss it fitness = [fst ((sortBy ordena listaTuplas) !! x) | x <- [1..it]] where
-    listaTuplas = zip xss (map fitness xss)
-  
+--------------------------------------------------------------------------------------------------------------------------
 ordena :: ([a],Double) -> ([a],Double) -> Ordering
 ordena (_,a) (_,b) | a<=b = LT
                    | otherwise = GT
