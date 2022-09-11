@@ -1,7 +1,7 @@
 module MainGenetico where
 
 import Generador
-import AGenetico
+import VariacionesCMS
 import GeneticoEx
 import Fitness
 import System.Random
