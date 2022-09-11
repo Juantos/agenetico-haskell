@@ -99,6 +99,9 @@ decodificaSudoku xs = print (M.fromList 9 9 (Prelude.map (+1) (Prelude.map (mod2
 decodificaViajante :: [Int] -> IO ()
 decodificaViajante xs = print [(valoresViajante 10)!!x | x<-xs] 
 
+decodificaMochila :: [Int] -> IO ()
+decodificaMochila xs = print xs
+
 mejorMax :: ([Int]->Double) -> [[Int]] -> [Int]
 mejorMax fitness xs = (seleccionElitistaMinimizar xs 1 fitness)!!0
 
@@ -114,16 +117,18 @@ mod2 :: Int -> Int -> Int
 mod2 modulo num = num `mod` modulo 
 
 fitnessMochila :: [Int] -> Double
-fitnessMochila xs = fitnessMochilaAux xs [5,3,2,6,4,2,4,2,4,1] [4,3,1,5,6,2,7,8,3,2] 50
+fitnessMochila xs = fitnessMochilaAux xs [1,2,3,2,1,2,4,1,2,1] [5,3,2,6,4,2,4,2,4,1] [4,3,1,5,6,2,7,8,3,2] 10
 
-fitnessMochilaAux :: [Int] -> [Int] -> [Int] -> Int -> Double
-fitnessMochilaAux xs bs cs w
-    | Prelude.sum (multiplicaListas xs cs) <= w     = fromIntegral (Prelude.sum (multiplicaListas xs bs))
-    | otherwise                             = fromIntegral (Prelude.sum (multiplicaListas xs bs) * (-1000))
+fitnessMochilaAux :: [Int] -> [Int] -> [Int] -> [Int] -> Int -> Double
+fitnessMochilaAux xs ts bs ws w = f - penalty
+    where f = fromIntegral (Prelude.sum (multiplicaListas xs bs)) --suma de los beneficios de cada objeto
+          penalty = fromIntegral ((Prelude.sum ws) * abs(Prelude.sum(multiplicaListas xs ws) - w))    
+          --penaliza teniendo en cuenta la diferencia entre el peso objetivo y el de la lista parámetro
+
+
+--Devuelve el número de elementos de dos listas que cumplen la condición x<b
+checkNumElems :: [Int] -> [Int] -> Int
+checkNumElems xs bs = Prelude.length (Prelude.filter (==True) (Prelude.zipWith(<) xs bs))
 
 multiplicaListas :: [Int] -> [Int] -> [Int]
 multiplicaListas = Prelude.zipWith (*)
-
-
-decodificaMochila :: [Int] -> IO()
-decodificaMochila xs = print xs
