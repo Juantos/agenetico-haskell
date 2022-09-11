@@ -45,7 +45,7 @@ combinacion1 padres tC porcentaje n = do
     rp1 <- randIntRango 0 porcentaje
     rp2 <- randIntRango 0 porcentaje
     pos <- randIntRango 0 (tC-1)
-    let c = take pos (padres!!rp1) ++ drop pos (padres!!rp2)
+    let c = take pos (padres!!rp1) ++ drop pos (padres!!rp2) --toma la parte inicial del padre1 y la parte final del padre2 
     cs <- combinacion1 padres tC porcentaje (n-1)
     return (c:cs)
 
@@ -66,7 +66,7 @@ ejecutaCombinacion1 padres tC mezcla = do
 
 combinacion2Aux :: [a] -> [a] -> [a] -> Int -> [a]
 combinacion2Aux [] [] zs _ =  zs
-combinacion2Aux (x:xs) (y:ys) zs 0 = combinacion2Aux xs ys (zs++[x]) 1 --Alternador
+combinacion2Aux (x:xs) (y:ys) zs 0 = combinacion2Aux xs ys (zs++[x]) 1 --Alterna un gen de padre1 con un gen de padre2 hasta terminar el cromosoma 
 combinacion2Aux (x:xs) (y:ys) zs 1 = combinacion2Aux xs ys (zs++[y]) 0 
 
 combinacion2 :: [[a]] -> Int -> Int -> IO [[a]]
@@ -111,8 +111,8 @@ combinacionCiclosAux [] [] ciclos zs = zs
 combinacionCiclosAux [] (y:ys) ciclos zs = zs ++ [y]
 combinacionCiclosAux (x:xs) [] ciclos zs = zs ++ [x]
 combinacionCiclosAux (x:xs) (y:ys) ciclos zs 
-    | elem x ciclos = combinacionCiclosAux xs ys ciclos (zs ++ [x])
-    | otherwise = combinacionCiclosAux xs ys ciclos (zs ++ [y])
+    | elem x ciclos = combinacionCiclosAux xs ys ciclos (zs ++ [x]) --cuando un gen de padre1 esta en el ciclo obtenido, lo toma para generar el hijo
+    | otherwise = combinacionCiclosAux xs ys ciclos (zs ++ [y]) --en caso contrario, toma el gen correspondiente a esa posicion de padre2
 
 ejecutaCombinacionCiclos :: Eq a => [[a]] -> Int -> [(String,Int)] -> IO [[a]]
 ejecutaCombinacionCiclos padres tC mezcla = do
@@ -134,7 +134,9 @@ ejecutaCombinacionCiclos padres tC mezcla = do
 
 
 mutacion1 :: [a] -> Int -> a -> [a]
-mutacion1 xs pos a = (take pos xs) ++ [a] ++ (reverse (take ((length xs)-(pos+1)) (reverse xs)))
+mutacion1 xs pos a = (take pos xs) ++ [a] ++ (reverse (take ((length xs)-(pos+1)) (reverse xs))) 
+--toma el cromosoma hasta la posición indicada, concatena el gen mutado y concatena el restante del cromosoma original 
+                                --                      (le da la vuelta, hace el take correspondiente y le vuelve a dar la vuelta)
 
 iteraMutacion1Int :: [[Int]] -> Int -> (Int, Int) -> Int -> Int -> IO [[Int]]
 iteraMutacion1Int _ _ _ _ 0 = return []
@@ -164,8 +166,12 @@ ejecutaMutacion1Int padres tC valoresGenRange mezcla = do
 --Output: lista de padres mutados
 
 
-intercambiaValores :: [a] -> Int -> Int -> [a]   --Recibe el cromosoma y las dos posiciones a intercambiar (importante introducir los numeros en orden)
-intercambiaValores xs pos1 pos2 = (take pos1 xs) ++ [xs !! pos2] ++ (interludio xs pos1 pos2) ++ [xs !! pos1] ++ (drop (pos2+1) xs)
+intercambiaValores :: [a] -> Int -> Int -> [a]   --Recibe el cromosoma y las dos posiciones a intercambiar 
+intercambiaValores xs pos1 pos2  
+    |(pos1<pos2)    = (take pos1 xs) ++ [xs !! pos2] ++ (interludio xs pos1 pos2) ++ [xs !! pos1] ++ (drop (pos2+1) xs) 
+    |pos1==pos2 = xs --si no tenemos en cuenta este caso el tamaño del cromosoma variaría
+    |otherwise = (take pos2 xs) ++ [xs !! pos1] ++ (interludio xs pos2 pos1) ++ [xs !! pos2] ++ (drop (pos1+1) xs) 
+
 interludio :: [a] -> Int -> Int -> [a]
 interludio xs pos1 pos2 = take (pos2-(pos1+1)) (drop (pos1+1) xs)
 
@@ -279,7 +285,7 @@ posEnLista :: Eq a => a -> [a] -> Int --Funcion auxiliar que recibe un elemento 
 posEnLista e xs = 
     if (elem e xs) == False 
         then error "El elemento no se encuentra en la lista"
-    else length (takeWhile (/=e) xs)
+    else length (takeWhile (/=e) xs) 
 --------------------------------------------------------------------------------------------------------------------------    
 ciclo :: Eq a => [a] -> [a] -> Int -> [a] -> [a] --Función auxiliar que recibe dos cromosomas , un entero y una lista vacía en principio y devuelve un ciclo del primero comenzando en la posición introducida
 ciclo xs ys pos zs = if elem (xs!!pos) zs then zs
@@ -289,3 +295,4 @@ ciclo xs ys pos zs = if elem (xs!!pos) zs then zs
 ordena :: ([a],Double) -> ([a],Double) -> Ordering
 ordena (_,a) (_,b) | a<=b = LT
                    | otherwise = GT
+                   --dadas dos tuplas formadas por un cromosoma y su valoración, las ordena segun su valoración
