@@ -34,10 +34,13 @@ import Data.Vector.Mutable
 
 
 --FUNCIONES FITNESS
-
+--input: Numero entero que representa el número de puntos por lado del cuadrado
+--output: lista de tuplas que representan cada punto del cuadrado
 valoresViajante :: Int -> [(Int,Int)] --Coordenadas que utilizaremos para el problema del viajante (para asegurar que el camino mínimo sea 4n)
 valoresViajante n = [(x,y) | x <- [0..n] , y <- [0..n] , (x==0 || y==0 || x==n || y==n)]
 
+--input: Cromosoma de números enteros (hacen referencia a la lista de puntos obtenida en valoresViajante)
+--output: Suma acumulada de las distancias entre los puntos de valores Viajante a los que hace referencia el cromosoma 
 fitnessViajante :: [Int] -> Double 
 fitnessViajante xs =  Prelude.sum ([distanciaManhattan ((valoresViajante 5)!!(xs!!x)) ((valoresViajante 5)!!(xs!!(x+1))) | x <- [0..((Prelude.length xs)-2)]]  
                         Prelude.++  [distanciaManhattan ((valoresViajante 5) !! 0) ((valoresViajante 5) !! 19)])
@@ -47,13 +50,20 @@ fitnessViajante xs =  Prelude.sum ([distanciaManhattan ((valoresViajante 5)!!(xs
                                 -- (Funcion de minimización)
                                 -- Posible cromosoma:  [0..19]
 
+--input: Dos puntos en dos dimensiones
+--output: La distancia entre dichos puntos
 distanciaManhattan :: (Int,Int) -> (Int,Int) -> Double
 distanciaManhattan (a1,a2) (b1,b2) = sqrt ( fromIntegral(((a1-b1)^2)) + fromIntegral(((a2-b2)^2)) )
 
-                                --posible cromosoma: [1..9]
+
+
+--input: un cromosoma de números enteros
+--output: valoración de dicho cromosoma obtenida mediante la suma en valor absoluto de las diferencias de cada fila, columna y diagonal y 15
 fitnessCuadradoMagico :: [Int] -> Double
 fitnessCuadradoMagico xs = fitnessCuadradoMagicoAux (M.fromList 3 3 xs)
+
     
+
 fitnessCuadradoMagicoAux :: Matrix Int -> Double
 fitnessCuadradoMagicoAux matriz = fromIntegral (Prelude.sum (Prelude.map (abs) (Prelude.map (resta15) listaSumas))) where
     listaSumas = sumaDiagonales Prelude.++ sumaColumnas Prelude.++ sumaFilas where
@@ -61,15 +71,15 @@ fitnessCuadradoMagicoAux matriz = fromIntegral (Prelude.sum (Prelude.map (abs) (
             (Prelude.sum [getElem x y matriz| x <-[1..(Prelude.length (toLists matriz))] , y<-[1..(Prelude.length (toLists matriz))] , x+y-1 == Prelude.length (toLists matriz)])] 
         sumaColumnas = [Prelude.sum (V.toList (getCol x matriz)) | x <- [1..(Prelude.length ((toLists matriz)!!0))]]
         sumaFilas = [Prelude.sum (V.toList (getRow x matriz)) | x <- [1..(Prelude.length (toLists matriz))]]
-                                -- Lista ejemplo de cuadrado mágico [4,3,8,9,5,1,2,7,6] 
-                                -- En esta función restamos 15, que es la suma que obtenemos en un cuadrado mágico 3x3, al resultado de cada una de las sumas obtenidas de filas,
-                                -- columnas y diagonales las cuales se obtienen mediante listas por compresión y extracciones de matrices
+-- Lista ejemplo de cuadrado mágico [4,3,8,9,5,1,2,7,6] 
+                                
 
 resta15 :: Int -> Int
 resta15 x = x-15    
     
---Ejemplo sudoku [2,1,9,5,4,3,6,7,8,5,4,3,8,7,6,9,1,2,8,7,6,2,1,9,3,4,5,4,3,2,7,6,5,8,9,1,7,6,5,1,9,8,2,3,4,1,9,8,4,3,2,5,6,7,3,2,1,6,5,4,7,8,9,6,5,4,9,8,7,1,2,3,9,8,7,3,2,1,4,5,6]
---posible cromosoma: Prelude.concat [[1..9] | x<-[0..8]]
+
+--input: un cromosoma de números enteros 
+--output: la valoración de dicho cromosoma obtenida mediante la suma acumulada del número de veces que se repite un número en una fila, columna o submatriz
 fitnessSudoku :: [Int] -> Double
 fitnessSudoku xs = fitnessSudokuAux (M.fromList 9 9 xs)
 
@@ -79,7 +89,12 @@ fitnessSudokuAux matriz = (Prelude.sum listaSumas)  where
         sumaColumnas = [cuentaIguales (V.toList (getCol x matriz)) | x <- [1..9]]
         sumaFilas = [cuentaIguales (V.toList (getRow x matriz)) | x <- [1..9]]
         sumaCuadrados = [cuentaIguales (M.toList (submatrix x y x y matriz)) | x <- [1,4,7], y <- [3,6,9], x<y, y-x==2]
+--Ejemplo sudoku [2,1,9,5,4,3,6,7,8,5,4,3,8,7,6,9,1,2,8,7,6,2,1,9,3,4,5,4,3,2,7,6,5,8,9,1,7,6,5,1,9,8,2,3,4,1,9,8,4,3,2,5,6,7,3,2,1,6,5,4,7,8,9,6,5,4,9,8,7,1,2,3,9,8,7,3,2,1,4,5,6]
+--posible cromosoma: Prelude.concat [[1..9] | x<-[0..8]]
 
+
+--input: una lista de enteros
+--output: apariciones adicionales de cada número entero en la lista módulo 9
 cuentaIguales :: [Int] -> Double 
 cuentaIguales xs = igualesAux xs 0.0
 
@@ -87,34 +102,53 @@ igualesAux :: [Int] -> Double -> Double
 igualesAux [] acum = acum 
 igualesAux (x:xs) acum = igualesAux (borra x xs) (acum + (fromIntegral (Prelude.length (Prelude.filter (congruente x 9) (xs))))) 
 
+
+--input: un numero entero y una lista de números enteros
+--output: la lista de entrada, eliminando todos los valores iguales al número entero introducido
 borra :: Int -> [Int] -> [Int]
 borra k xs = Prelude.foldr (\x ac -> if x==k then ac else x:ac) [] xs
 
+--input: un cromosoma de números enteros
+--output: imprime por pantalla la matriz que representa dicho cromosoma
 decodificaCuadradoMagico :: [Int] -> IO ()
 decodificaCuadradoMagico xs = print (M.fromList 3 3 xs)
 
+--input: un cromosoma de números enteros
+--output: imprime por pantalla la matriz que representa dicho cromosoma 
 decodificaSudoku :: [Int] -> IO ()
 decodificaSudoku xs = print (M.fromList 9 9 (Prelude.map (+1) (Prelude.map (mod2 9) xs)))
 
+--input: un cromosoma de números enteros
+--output: imprime por pantalla la ordenación de puntos de problema del viajante representada por dicho cromosoma
 decodificaViajante :: [Int] -> IO ()
 decodificaViajante xs = print [(valoresViajante 10)!!x | x<-xs] 
 
+--input: un cromosoma de números enteros
+--output: imprime por pantalla dicho cromosoma
 decodificaMochila :: [Int] -> IO ()
 decodificaMochila xs = print xs
 
+--input: una funcion fitness y una lista de cromosomas
+--output: devuelve el mejor cromosoma de la lista (maximizando)
 mejorMax :: ([Int]->Double) -> [[Int]] -> [Int]
 mejorMax fitness xs = (seleccionElitistaMinimizar xs 1 fitness)!!0
 
+--input: una funcion fitness y una lista de cromosomas
+--output: devuelve el mejor cromosoma de la lista (minimizando)
 mejorMin :: ([Int]->Double) -> [[Int]] -> [Int]
 mejorMin fitness xs = (seleccionElitistaMinimizar xs 1 fitness)!!0
 
+--input: 3 numeros enteros 
+--output: devuelve True si el primer número y el tercero son congruentes siendo el módulo el segundo, en caso contrario devuelve False
 congruente :: Int -> Int -> Int -> Bool
 congruente num1 modulo num2
     | (num1 `mod` modulo) == (num2 `mod` modulo) = True
     | otherwise = False
 
+--Reformulacion de la operación mod para poder aplicarla con map
 mod2 :: Int -> Int -> Int
 mod2 modulo num = num `mod` modulo 
+
 
 fitnessMochila :: [Int] -> Double
 fitnessMochila xs = fitnessMochilaAux xs [1,2,3,2,1,2,4,1,2,1] [5,3,2,6,4,2,4,2,4,1] [4,3,1,5,6,2,7,8,3,2] 10
