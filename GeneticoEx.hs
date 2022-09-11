@@ -6,7 +6,7 @@ module GeneticoEx(
     
 ) where
 
-import AGenetico
+import VariacionesCMS
 import Fitness
 import Generador
 import Data.Matrix
