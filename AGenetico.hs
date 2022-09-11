@@ -47,7 +47,7 @@ combinacion1 padres tC porcentaje n = do
     rp1 <- randIntRango 0 porcentaje
     rp2 <- randIntRango 0 porcentaje
     pos <- randIntRango 0 (tC-1)
-    let c = take pos (padres!!rp1) ++ drop pos (padres!!rp2)
+    let c = take pos (padres!!rp1) ++ drop pos (padres!!rp2) 
     cs <- combinacion1 padres tC porcentaje (n-1)
     return (c:cs)
 
