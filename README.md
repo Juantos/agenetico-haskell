@@ -8,11 +8,11 @@ Para compilar:
 
 2.Para compilar el proyecto escribir en línea de comandos del símbolo del sistema de windows:
 
-ghc --make Main.hs -o TrabajoPD
+ghc --make Main.hs -o agenetico
 
 3.Posteriormente para ejecutarlo debemos escribir:
 
-./TrabajoPD
+./agenetico
 
 4.Una vez hecho esto se imprimirán por pantalla las instrucciones que indican como proceder, introduciendo "c", "s", "m" y "v" respectivamente ejecutaremos 
 el problema del cuadrado mágico, del sudoku, de la mochila y del viajante respectivamente.
