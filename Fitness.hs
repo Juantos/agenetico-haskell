@@ -127,13 +127,22 @@ mod2 modulo num = num `mod` modulo
 ------------------------------------------------------------------------------------------------------------------------------
 --FITNESS MOCHILA
 
+--Input: Lista generada del tipo [e1, ..., en] donde cada ei representa el número veces que tenemos el objeto ei
+--       Lista ts: Indica la cantidad de cada objeto ei que tenemos disponible
+--       Lista bs: Indica el valor de cada objeto ei
+--       Lista ws: Indica el peso de cada objeto ei
+--       W: Indica el peso máximo que soporta nuestra mochila
 fitnessMochila :: [Int] -> Double
-fitnessMochila xs = fitnessMochilaAux xs [1,2,3,2,1,2,4,1,2,1] [5,3,2,6,4,2,4,2,4,1] [4,3,1,5,6,2,7,8,3,2] 10
+fitnessMochila xs = fitnessMochilaAux xs [1,2,3,2,1,2,3,1,2,1] [5,3,2,6,4,2,4,2,4,1] [4,3,1,5,6,2,7,8,3,2] 20
 
 fitnessMochilaAux :: [Int] -> [Int] -> [Int] -> [Int] -> Int -> Double
-fitnessMochilaAux xs ts bs ws w = f - penalty
+fitnessMochilaAux xs ts bs ws w
+    | difPesos < 0  = f - penalty
+    | otherwise     = f
     where f = fromIntegral (Prelude.sum (multiplicaListas xs bs)) --suma de los beneficios de cada objeto
-          penalty = fromIntegral ((Prelude.sum ws) * abs(Prelude.sum(multiplicaListas xs ws) - w))
+          penalty = fromIntegral ((Prelude.sum ws) * abs(dotMultXsWs - w))
+          difPesos = fromIntegral(w - dotMultXsWs)
+          dotMultXsWs = Prelude.sum(multiplicaListas xs ws)
           --penaliza teniendo en cuenta la diferencia entre el peso objetivo y el de la lista parámetro
 
 

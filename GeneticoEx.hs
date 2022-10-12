@@ -8,7 +8,7 @@ module GeneticoEx(
 
 import VariacionesCMS
 import Fitness
-import Generador
+
 import Data.Matrix
 import Data.List
 
@@ -39,6 +39,7 @@ itera xs tipoCromosma Min valoresGenRange tamanoCromosoma poblacion porcentajeMe
     let random = seleccionElitistaMaximizar lista (div ((100-(div ((snd (porcentajeMezcla!!0))*100) poblacion))*poblacion) 100) fitness -- hace la lista de los no seleccionados
 
     --Combinaciones y mutaciones
+
     comb1 <- ejecutaCombinacion1 padres tamanoCromosoma porcentajeMezcla
     comb2 <- ejecutaCombinacion2 padres porcentajeMezcla
     combCiclos <- ejecutaCombinacionCiclos padres tamanoCromosoma porcentajeMezcla

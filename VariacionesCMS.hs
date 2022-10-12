@@ -52,9 +52,12 @@ combinacion1 padres tC porcentaje n = do
 --Hace muchas combinaciones teniendo en cuenta el porcentaje (snd (mezcla!!1)) de los mejores padres especificados
 ejecutaCombinacion1 :: [[a]] -> Int -> [(String,Int)] -> IO [[a]]
 ejecutaCombinacion1 padres tC mezcla = do
-    let porcentaje = ((snd (mezcla!!0))-1)
-    comb1 <- combinacion1 padres tC porcentaje ((snd (mezcla!!1)))
-    return comb1
+    if snd(mezcla!!1) == 0 then do
+        return []
+    else do
+        let porcentaje = ((snd (mezcla!!0))-1)
+        comb1 <- combinacion1 padres tC porcentaje ((snd (mezcla!!1)))
+        return comb1
 
 
 --------------------------------------------------------------------------------------------------------------------------
@@ -80,9 +83,12 @@ combinacion2 padres porcentaje n = do
 
 ejecutaCombinacion2 :: [[a]] -> [(String, Int)] -> IO [[a]]
 ejecutaCombinacion2 padres mezcla = do
-    let porcentaje = (snd (mezcla!!0))-1
-    comb2 <- combinacion2 padres porcentaje (snd (mezcla!!2))
-    return comb2
+    if snd(mezcla!!2) == 0 then do
+        return []
+    else do
+        let porcentaje = (snd (mezcla!!0))-1
+        comb2 <- combinacion2 padres porcentaje (snd (mezcla!!2))
+        return comb2
 
 
 --------------------------------------------------------------------------------------------------------------------------
@@ -116,9 +122,12 @@ combinacionCiclosAux (x:xs) (y:ys) ciclos zs
 
 ejecutaCombinacionCiclos :: Eq a => [[a]] -> Int -> [(String,Int)] -> IO [[a]]
 ejecutaCombinacionCiclos padres tC mezcla = do
-    let porcentaje = ((snd (mezcla!!0))-1)
-    combi <- combinacionCiclos padres (tC-1) porcentaje (snd (mezcla!!3))
-    return combi
+    if snd(mezcla!!3) == 0 then do
+        return []
+    else do
+        let porcentaje = ((snd (mezcla!!0))-1)
+        combi <- combinacionCiclos padres (tC-1) porcentaje (snd (mezcla!!3))
+        return combi
 
 
      
@@ -150,9 +159,12 @@ iteraMutacion1Int padres tC valoresGenRange porcentaje n = do
 
 ejecutaMutacion1Int :: [[Int]] -> Int -> (Int,Int) -> [(String,Int)] -> IO [[Int]]
 ejecutaMutacion1Int padres tC valoresGenRange mezcla = do
-    let porcentaje = (snd (mezcla!!0))-1
-    mut1 <- iteraMutacion1Int padres (tC-1) valoresGenRange porcentaje ((snd (mezcla!!4)))
-    return mut1
+    if snd(mezcla!!4) == 0 then do
+        return []
+    else do
+        let porcentaje = (snd (mezcla!!0))-1
+        mut1 <- iteraMutacion1Int padres (tC-1) valoresGenRange porcentaje ((snd (mezcla!!4)))
+        return mut1
 
 
 -------------------------------------------------------------------------------------------------------------------------
@@ -202,6 +214,9 @@ iteraPermutaIntercambios padres tC porcentaje n = do
 
 ejecutaPermutacionInter :: [[a]] -> Int -> [(String, Int)] -> IO [[a]]
 ejecutaPermutacionInter padres tC mezcla = do
+    if snd(mezcla!!5) == 0 then do
+        return []
+    else do
     let porcentaje = (snd (mezcla!!0))-1
     r <- iteraPermutaIntercambios padres (tC-1) porcentaje (snd (mezcla!!5))
     return r

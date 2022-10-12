@@ -50,7 +50,6 @@ generaEstadoInicial n m l = do
     return (r:rs)
 
 
-
 --Input: (n,m) Rango en el que se generan los genes de cada cromosoma, l la longitud del cromosoma, i numero de individuos de la poblacion
 --genera una población inicial
 --generaPoblacion :: Int -> Int -> Int -> Int -> [[Int]]
